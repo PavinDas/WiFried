@@ -47,4 +47,4 @@ A Python-based tool designed to scan Wi-Fi networks, perform deauthentication at
 ---
 
 ## Run Tool
- ``` sudo python3 wi_fried.py```
+ ``` sudo python3 wi_fried.py ```
