@@ -38,12 +38,13 @@ A Python-based tool designed to scan Wi-Fi networks, perform deauthentication at
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/PavinDas/Wi-Fried.git
-   cd Wi-Frie
-```
+   cd Wi-Frie```
+
 2. **Download Wordlist**
    Download the wordlist file: [Wordlist](https://github.com/PavinDas/WiFried/releases/tag/Wordlist)
    Add this file to WiFried directory
 
+---
+
 ## Run Tool
- ``` sudo python3 wi_fried.py
-```
+ ``` sudo python3 wi_fried.py```
